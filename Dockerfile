@@ -25,5 +25,6 @@ RUN chmod +x /v2ray.sh
 # 暴露端口 (根据 config.json 中服务器监听端口修改，这里假设是 10000)
 EXPOSE 10000  #  <--  修改为服务器监听端口
 
+echo "准备执行v2ray.sh"
 # 定义启动命令
 CMD ["/v2ray.sh"]
