@@ -8,7 +8,6 @@ ARCH="64"
 DOWNLOAD_PATH="/tmp/v2ray"
 INSTALL_PATH="/usr/bin"
 DATA_PATH="/usr/local/share/v2ray"
-CONFIG_PATH="/etc/v2ray"
 
 mkdir -p ${DOWNLOAD_PATH}
 cd ${DOWNLOAD_PATH} || exit
@@ -47,10 +46,12 @@ cd "${DOWNLOAD_PATH}" || exit
 
 # Move files to system directory
 echo "安装到系统路径..."
-mv v2ray "${INSTALL_PATH}"
+mv v2ray config.json vpoint_socks_vmess.json vpoint_vmess_freedom.json systemd "${INSTALL_PATH}"
 chmod +x "${INSTALL_PATH}/v2ray"
 mkdir -p "${DATA_PATH}"
 mv geosite.dat geoip.dat "${DATA_PATH}"
+
+
 
 # 清理临时文件
 echo "清理临时文件..."
@@ -71,6 +72,7 @@ echo "--------------------------------"
 
 #  开始修改 config.json  (新增配置修改部分)
 echo "修改 config.json ..."
+
 
 CONFIG_FILE="${INSTALL_PATH}/config.json"
 
