@@ -1,30 +1,28 @@
 name: Fly Deploy
-on: 
+on:
   workflow_dispatch:
   push:
-#  schedule:
-#    - cron: '0 4 1 * *'
+    branches: [ "main" ] # 建议明确指定分支，例如 main 分支
+
 env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   APP_NAME: ${{ secrets.APP_NAME }}
   UUID: ${{ secrets.UUID }}
+
 jobs:
   deploy:
-    name: Deploy app
+    name: Deploy app to Fly.io # 更清晰的 Job 名称
     runs-on: ubuntu-latest
     steps:
-     - name: Checkout code
-       uses: actions/checkout@v3
+      - name: Checkout code # 明确 Checkout 步骤的目的
+        uses: actions/checkout@v3 # 统一使用 actions/checkout@v3 (最新版本)
 
-     - name: Install flyctl
-       run: |
-       curl -L https://fly.io/install.sh | sh
-      # 将 flyctl 添加到 PATH 环境变量，以便后续步骤可以找到
-      export PATH="$PATH:$HOME/.fly/bin"
-      echo "PATH=$PATH" >> $GITHUB_ENV # 将 PATH 设置为环境变量，供后续步骤使用
-
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Deploy
+      - name: Install flyctl # 明确步骤目的
         run: |
-          sh ./deploy.sh
+          curl -L https://fly.io/install.sh | sh
+          # 将 flyctl 添加到 PATH 环境变量，以便后续步骤可以找到
+          export PATH="$PATH:$HOME/.fly/bin"
+          echo "PATH=$PATH" >> $GITHUB_ENV # 将 PATH 设置为环境变量，供后续步骤使用
+
+      - name: Run deploy.sh script # 更清晰的步骤名称，说明执行的脚本
+        run: sh ./deploy.sh
