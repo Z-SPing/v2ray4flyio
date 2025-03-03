@@ -45,7 +45,7 @@ processes = []
 [http_service]
   internal_port = 8080  # 确保与应用监听端口一致
   force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = false
   auto_start_machines = true
   processes = ["app"]
 
