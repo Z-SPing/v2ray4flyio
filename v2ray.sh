@@ -62,5 +62,33 @@ echo "Fly App Region: ${FLY_REGION}"
 echo "V2Ray UUID: ${UUID}"
 echo "--------------------------------"
 
+echo "--------------------------------"
+echo "Fly App Name: ${FLY_APP_NAME}"
+echo "Fly App Region: ${FLY_REGION}"
+echo "V2Ray UUID: ${UUID}"  #  <--  输出生成的 UUID
+echo "--------------------------------"
+
+#  开始修改 config.json  (新增配置修改部分)
+echo "修改 config.json ..."
+
+CONFIG_FILE="${CONFIG_PATH}/config.json"
+
+#  替换 inbounds 部分为 vmess 服务器配置
+sed -i "s#\"inbounds\": \[.*\]#\"inbounds\": [\n      {\n        \"port\": 10000,\n        \"listen\": \"0.0.0.0\",\n        \"protocol\": \"vmess\",\n        \"settings\": {\n          \"clients\": [\n            {\n              \"id\": \"${UUID}\",\n              \"alterId\": 0,\n              \"security\": \"auto\"\n            }\n          ]\n        }\n      }\n    ]#g" "${CONFIG_FILE}"
+
+#  简化 outbounds 部分 (只保留 freedom, 移除 socks, 可选保留 blackhole)
+sed -i "/},{\"protocol\": \"socks\".*},{\"protocol\": \"blackhole\"/d" "${CONFIG_FILE}"  #  移除 socks 和 blackhole 出站 (如果原配置是这个顺序)
+sed -i "/},{\"protocol\": \"socks\".*}/d" "${CONFIG_FILE}" # 移除 socks 出站 (如果 blackhole 不存在或顺序不同)
+sed -i "/\"defaultOutboundTag\": \".*\"/c\"defaultOutboundTag\": \"freedom\"" "${CONFIG_FILE}" # 设置默认出站为 freedom
+
+#  简化 routing 部分 (简化规则，例如只保留阻止内网 IP 的规则，这里省略，可以根据需要添加更多 sed 命令修改 routing 部分)
+#  ...  可以根据需要添加更多 sed 命令来修改 routing 部分  ...
+
+echo "config.json 修改完成"
+
+# Run v2ray (保持不变)
+/usr/bin/v2ray -config /etc/v2ray/config.json 
+
+
 # Run v2ray
 /usr/bin/v2ray -config /etc/v2ray/config.json &
