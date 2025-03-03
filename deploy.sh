@@ -41,6 +41,23 @@ processes = []
 [experimental]
   allowed_public_ports = []
   auto_rollback = true
+  
+[http_service]
+  internal_port = 8080  # 确保与应用监听端口一致
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  processes = ["app"]
+
+# 关键配置：调整健康检查的等待时间和重试策略
+[[http_service.checks]]
+  interval = "5s"          # 检查间隔
+  grace_period = "10s"     # 等待应用启动的时间（关键！）
+  timeout = "2s"           # 单次检查超时时间
+  method = "GET"
+  path = "/healthz"        # 确保路径正确且能被公开访问
+  protocol = "http"
+  port = 8080              # 与 internal_port 一致
 
 [[services]]
   http_checks = []
