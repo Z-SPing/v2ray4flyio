@@ -18,38 +18,19 @@ TAG=$(wget -qO- --no-check-certificate https://api.github.com/repos/v2fly/v2ray-
 echo "最新版本: ${TAG}"
 
 # 下载文件
-V2RAY_ZIP="v2ray-linux-${ARCH}.zip"
-DGST_FILE="${V2RAY_ZIP}.dgst"
-DOWNLOAD_URL="https://github.com/v2fly/v2ray-core/releases/download/${TAG}/${V2RAY_ZIP}"
+V2RAY_TAR="v2ray-linux-${ARCH}.tar.gz"
+DOWNLOAD_URL="https://github.com/v2fly/v2ray-core/releases/download/${TAG}/${V2RAY_TAR}"
 
-echo "下载: ${V2RAY_ZIP} 和校验文件..."
-wget -O "${DOWNLOAD_PATH}/v2ray.zip" "${DOWNLOAD_URL}" || (echo "下载失败!" && exit 1)
-wget -O "${DOWNLOAD_PATH}/v2ray.zip.dgst" "${DOWNLOAD_URL}.dgst" || (echo "下载校验文件失败!" && exit 1)
+echo "Downloading: ${V2RAY_TAR}..."
+wget -O "${DOWNLOAD_PATH}/${V2RAY_TAR}" "${DOWNLOAD_URL}" || (echo "Download failed!" && exit 1)
 
-# 校验文件完整性
-echo "校验文件完整性..."
+# Extract and install
+echo "Extracting..."
+tar -xzf "${DOWNLOAD_PATH}/${V2RAY_TAR}" -C "${DOWNLOAD_PATH}"
 
-LOCAL_HASH=$(sha512sum "${ZIP_NAME}" | awk '{print $1}')
+cd "${DOWNLOAD_PATH}" || exit
 
-# 提取远程哈希值（精确匹配 SHA2-512）
-REMOTE_HASH=$(grep -i '^SHA2-512=' "${DGST_NAME}" | awk -F'= ' '{print $2}')
-
-# 对比哈希值
-if [ "${LOCAL_HASH}" = "${REMOTE_HASH}" ]; then
-  echo "校验通过 ✅"
-  echo "文件路径：${DOWNLOAD_DIR}/${ZIP_NAME}"
-else
-  echo "校验失败 ❌文件可能被篡改"
-  exit 1
-fi
-
-
-# 解压并安装
-echo "解压文件..."
-unzip -j "${DOWNLOAD_PATH}/v2ray.zip" -d "${DOWNLOAD_PATH}/extracted" # -j 忽略子目录，直接解压到 extracted
-cd "${DOWNLOAD_PATH}/extracted" || exit
-
-# 移动文件到系统目录
+# Move files to system directory
 echo "安装到系统路径..."
 mv v2ray v2ctl "${INSTALL_PATH}"
 chmod +x "${INSTALL_PATH}/v2ray" "${INSTALL_PATH}/v2ctl"
