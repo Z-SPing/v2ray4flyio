@@ -1,7 +1,7 @@
 name: Fly Deploy
 on:
   workflow_dispatch:
-  push:
+#  push:
     branches: [ "main" ] # 建议明确指定分支，例如 main 分支
 
 env:
