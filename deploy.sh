@@ -60,6 +60,10 @@ processes = []
 #   protocol = "http"
 #   port = 8080
 
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 1024 
 
 [[services]]
   internal_port = 10000  #  V2Ray 监听端口
@@ -78,7 +82,7 @@ processes = []
   #   port = 80
 
    [[services.ports]]
-     handlers = ["tls", "http"]
+     handlers = "tls"
      port = 443
 
   [[services.tcp_checks]]
