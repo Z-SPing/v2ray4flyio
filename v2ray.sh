@@ -48,6 +48,11 @@ cd "${DOWNLOAD_PATH}" || exit
 echo "安装到系统路径..."
 mv v2ray config.json vpoint_socks_vmess.json vpoint_vmess_freedom.json systemd "${INSTALL_PATH}"
 chmod +x "${INSTALL_PATH}/v2ray"
+chmod +x "${INSTALL_PATH}/config.json"
+chmod +x "${INSTALL_PATH}/vpoint_socks_vmess.json"
+chmod +x "${INSTALL_PATH}/vpoint_vmess_freedom.json"
+
+
 mkdir -p "${DATA_PATH}"
 mv geosite.dat geoip.dat "${DATA_PATH}"
 
