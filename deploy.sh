@@ -77,13 +77,9 @@ processes = []
   #   handlers = ["http"]
   #   port = 80
 
-  # [[services.ports]]
-  #   handlers = ["tls", "http"]
-  #   port = 443
-
-  [[services.ports]]
-    port = 10000  #  V2Ray 对外端口，与 internal_port 一致
-    handlers = ["tcp"] #  使用 TCP handler
+   [[services.ports]]
+     handlers = ["tls", "http"]
+     port = 443
 
   [[services.tcp_checks]]
     interval = "15s"
