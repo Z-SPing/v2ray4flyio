@@ -87,8 +87,7 @@ sed -i "/\"defaultOutboundTag\": \".*\"/c\"defaultOutboundTag\": \"freedom\"" "$
 echo "config.json 修改完成"
 
 # Run v2ray (保持不变)
-/usr/bin/v2ray -config /etc/v2ray/config.json 
+v2ray -config=/etc/v2ray/config.json
 
 
-# Run v2ray
-/usr/bin/v2ray -config /etc/v2ray/config.json &
+
