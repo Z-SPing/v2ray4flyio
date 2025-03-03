@@ -13,8 +13,7 @@ RUN wget -q https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-l
 # 创建 V2Ray 配置目录
 RUN mkdir -p /etc/v2ray
 
-# 复制配置文件 (取消注释并确保 config.json 文件与 Dockerfile 在同一目录下)
-COPY config.json /etc/v2ray/config.json
+
 
 # 复制 v2ray.sh 启动脚本
 COPY v2ray.sh /
