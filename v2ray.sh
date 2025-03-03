@@ -8,6 +8,7 @@ ARCH="64"
 DOWNLOAD_PATH="/tmp/v2ray"
 INSTALL_PATH="/usr/bin"
 DATA_PATH="/usr/local/share/v2ray"
+CONFIG_PATH="/etc/v2ray"
 
 mkdir -p ${DOWNLOAD_PATH}
 cd ${DOWNLOAD_PATH} || exit
@@ -71,7 +72,7 @@ echo "--------------------------------"
 #  开始修改 config.json  (新增配置修改部分)
 echo "修改 config.json ..."
 
-CONFIG_FILE="${CONFIG_PATH}/config.json"
+CONFIG_FILE="${INSTALL_PATH}/config.json"
 
 #  替换 inbounds 部分为 vmess 服务器配置
 sed -i "s#\"inbounds\": \[.*\]#\"inbounds\": [\n      {\n        \"port\": 10000,\n        \"listen\": \"0.0.0.0\",\n        \"protocol\": \"vmess\",\n        \"settings\": {\n          \"clients\": [\n            {\n              \"id\": \"${UUID}\",\n              \"alterId\": 0,\n              \"security\": \"auto\"\n            }\n          ]\n        }\n      }\n    ]#g" "${CONFIG_FILE}"
@@ -86,7 +87,7 @@ sed -i "/\"defaultOutboundTag\": \".*\"/c\"defaultOutboundTag\": \"freedom\"" "$
 
 echo "config.json 修改完成"
 
-mv CONFIG_FILE "${INSTALL_PATH}"
+# mv CONFIG_FILE "${INSTALL_PATH}"
 
 # Run v2ray (保持不变)
 v2ray run
