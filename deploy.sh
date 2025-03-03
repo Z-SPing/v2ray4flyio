@@ -41,49 +41,55 @@ processes = []
 [experimental]
   allowed_public_ports = []
   auto_rollback = true
-  
-[http_service]
-  internal_port = 8080  # 确保与应用监听端口一致
-  force_https = true
-  auto_stop_machines = false
-  auto_start_machines = true
-  processes = ["app"]
 
-# 关键配置：调整健康检查的等待时间和重试策略
-[[http_service.checks]]
-  interval = "5s"          # 检查间隔
-  grace_period = "10s"     # 等待应用启动的时间（关键！）
-  timeout = "2s"           # 单次检查超时时间
-  method = "GET"
-  path = "/healthz"        # 确保路径正确且能被公开访问
-  protocol = "http"
-  port = 8080              # 与 internal_port 一致
+# 移除 [http_service] 部分，因为是 V2Ray 服务器，不需要 HTTP 服务
+# [http_service]
+#   internal_port = 8080
+#   force_https = true
+#   auto_stop_machines = false
+#   auto_start_machines = true
+#   processes = ["app"]
+
+# 移除 [[http_service.checks]] 部分，使用 TCP 检查
+# [[http_service.checks]]
+#   interval = "5s"
+#   grace_period = "10s"
+#   timeout = "2s"
+#   method = "GET"
+#   path = "/healthz"
+#   protocol = "http"
+#   port = 8080
+
 
 [[services]]
-  http_checks = []
-  internal_port = 443
-  # processes = ["app"]
+  internal_port = 10000  #  V2Ray 监听端口
   protocol = "tcp"
   script_checks = []
+  http_checks = [] # 移除 http_checks，使用 tcp_checks
 
   [services.concurrency]
     hard_limit = 50
     soft_limit = 35
     type = "connections"
 
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
+  # 移除 HTTP/HTTPS 端口配置
+  # [[services.ports]]
+  #   handlers = ["http"]
+  #   port = 80
+
+  # [[services.ports]]
+  #   handlers = ["tls", "http"]
+  #   port = 443
 
   [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
+    port = 10000  #  V2Ray 对外端口，与 internal_port 一致
+    handlers = ["tcp"] #  使用 TCP handler
 
   [[services.tcp_checks]]
-    grace_period = "120s"
     interval = "15s"
-    restart_limit = 0
     timeout = "2s"
+    grace_period = "120s" #  启动等待时间可以适当长一些
+    restart_limit = 0
 EOF
 printf '\e[32mCreate app config file success.\n\e[0m'
 printf '\e[33mNext, set app secrets and regions.\n\e[0m'
