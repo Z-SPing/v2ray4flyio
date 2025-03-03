@@ -28,11 +28,21 @@ wget -O "${DOWNLOAD_PATH}/v2ray.zip.dgst" "${DOWNLOAD_URL}.dgst" || (echo "下�
 
 # 校验文件完整性
 echo "校验文件完整性..."
-LOCAL_SHA512=$(openssl dgst -sha512 "${DOWNLOAD_PATH}/v2ray.zip" | awk '{print $2}')
-REMOTE_SHA512=$(cat "${DOWNLOAD_PATH}/v2ray.zip.dgst" | grep 'SHA512' | cut -d' ' -f2)
 
-[ "${LOCAL_SHA512}" != "${REMOTE_SHA512}" ] && echo "校验失败! 文件可能被篡改" && exit 1
-echo "校验通过"
+LOCAL_HASH=$(sha512sum "${ZIP_NAME}" | awk '{print $1}')
+
+# 提取远程哈希值（精确匹配 SHA2-512）
+REMOTE_HASH=$(grep -i '^SHA2-512=' "${DGST_NAME}" | awk -F'= ' '{print $2}')
+
+# 对比哈希值
+if [ "${LOCAL_HASH}" = "${REMOTE_HASH}" ]; then
+  echo "校验通过 ✅"
+  echo "文件路径：${DOWNLOAD_DIR}/${ZIP_NAME}"
+else
+  echo "校验失败 ❌文件可能被篡改"
+  exit 1
+fi
+
 
 # 解压并安装
 echo "解压文件..."
