@@ -2,6 +2,7 @@ FROM alpine:latest
 
 WORKDIR /root
 COPY v2ray.sh /root/v2ray.sh
+RUN chmod +x /root/v2ray.sh
 
 RUN set -ex \
     && apk add --no-cache tzdata openssl ca-certificates libcap \
