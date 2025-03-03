@@ -29,10 +29,10 @@ fi
 echo "Download binary file: ${V2RAY_FILE} ${DGST_FILE} completed"
 
 # Check SHA512
-LOCAL=$(openssl dgst -sha512 v2ray.zip | sed 's/([^)]*)//g')
-STR=$(cat < v2ray.zip.dgst | grep 'SHA512' | head -n1)
+LOCAL=$(openssl dgst -sha512 v2ray.zip | sed 's/^.* \\([a-z0-9]*\\)$/\\1/')
+STR=$(cat v2ray.zip.dgst | grep 'SHA512' | cut -d' ' -f2)
 
-if [ "${LOCAL}" = "${STR}" ]; then
+if [ "${LOCAL}" == "${STR}" ]; then
     echo " Check passed" && rm -fv v2ray.zip.dgst
 else
     echo " Check have not passed yet " && exit 1
