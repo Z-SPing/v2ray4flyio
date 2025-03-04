@@ -76,16 +76,15 @@ echo "注释行已移除"
 
 
 
-#  配置 inbounds 部分
+# 配置 inbounds 部分
 jq ".inbounds = [{\"port\": 10000, \"listen\": \"0.0.0.0\", \"protocol\": \"vmess\", \"settings\": {\"clients\": [{\"id\": \"${UUID}\", \"alterId\": 0, \"security\": \"auto\"}]}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
-#  配置 outbounds 部分
+# 配置 outbounds 部分
 jq ".outbounds = [{\"tag\": \"freedom\", \"protocol\": \"freedom\", \"settings\": {}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 jq ".defaultOutboundTag = \"freedom\"" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
-#  配置 routing 部分
-jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", \"outboundTag\": \"freedom\"}]}" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
-
+# 配置 routing 部分
+jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", \"domain\": [\"*\"], \"outboundTag\": \"freedom\"}]}" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
 echo "config.json 修改为服务器端配置完成 (使用 jq)"
 
