@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update && apk add --no-cache curl wget unzip
-RUN apt-get update && apt-get install -y jq
+RUN apk update && apk add -y jq
 
 # 下载 V2Ray
 RUN wget -q https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip -O v2ray.zip && \
