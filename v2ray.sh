@@ -87,5 +87,5 @@ jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", 
 echo "config.json 修改为服务器端配置完成 (使用 jq)"
 
 
-# Run v2ray (保持不变)
+# Run v2ray 
 v2ray run
