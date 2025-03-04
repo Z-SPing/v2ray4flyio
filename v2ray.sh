@@ -99,11 +99,9 @@ echo "Install done"
 # Run v2ray 
 v2ray run
 
-sleep 5
+sleep 10
 
-echo "--- Top 5 Memory Consuming Processes after V2Ray Startup ---"
+echo "--- Testing basic ps command ---"
+ps aux | head -n 2
+echo "------------------------------"
 
-# 使用 ps 命令获取内存占用前 5 的进程
-ps -o pid,user,%mem,rss,vsz,command --sort=-%mem | head -n 5
-
-echo "---------------------------------------------------------"
