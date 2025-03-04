@@ -83,7 +83,7 @@ echo "config.json 修改为服务器端配置完成 (使用 jq)"
 
 # 清理临时文件
 echo "清理临时文件..."
-rm -rf "${DOWNLOAD_PATH}"
+rm -rf "${DOWNLOAD_PATH}"  
 echo "Install done"
 
 # Run v2ray 
