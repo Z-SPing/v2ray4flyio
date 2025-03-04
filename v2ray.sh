@@ -58,11 +58,6 @@ mv geosite.dat geoip.dat "${DATA_PATH}"
 
 
 
-# 清理临时文件
-echo "清理临时文件..."
-rm -rf "${DOWNLOAD_PATH}"
-echo "Install done"
-
 echo "--------------------------------"
 echo "Fly App Name: ${FLY_APP_NAME} v2"
 echo "Fly App Region: ${FLY_REGION}"
@@ -86,6 +81,10 @@ jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", 
 
 echo "config.json 修改为服务器端配置完成 (使用 jq)"
 
+# 清理临时文件
+echo "清理临时文件..."
+rm -rf "${DOWNLOAD_PATH}"
+echo "Install done"
 
 # Run v2ray 
 v2ray run
