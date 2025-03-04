@@ -8,6 +8,7 @@ VOLUME_NAME="swap_volume"  # 定义 Volume 名称
 VOLUME_SIZE_GB=3        # 定义 Volume 大小 (GB)
 MAX_CPUS=2               # 最大 CPU 限制
 MAX_VOLUMES=1            # 最大 Volume 限制
+MIN_MEMORY_MB=512        # 最小内存要求
 
 if ! command -v flyctl >/dev/null 2>&1; then
     printf '\e[33mCould not resolve command - flyctl. So, install flyctl first.\n\e[0m'
@@ -50,7 +51,7 @@ processes = []
 [[vm]]
   cpu_kind = "shared"
   cpus = ${MAX_CPUS}  # 设置最大 CPU 限制
-  memory_mb = 256
+  memory_mb = ${MIN_MEMORY_MB} #  !!!  修改为 ${MIN_MEMORY_MB}，至少 512MB  !!!
 
 [[services]]
   internal_port = 10000  #  V2Ray 监听端口
@@ -103,7 +104,8 @@ sleep 30 #  !!! 添加 sleep 等待时间，确保部署开始 !!!
 
 #  ----------  CPU 限制检查和调整  ----------
 printf '\e[33mChecking CPU count...\n\e[0m'
-current_cpu_count=$(flyctl status --app "${APP_NAME}" --json | jq '.app. машин_config.cpus') #  获取当前 CPU 数量
+#  !!!  修改 jq 路径，先尝试 machine_config，如果不行，请提供 flyctl status --json 输出，我再帮你改 !!!
+current_cpu_count=$(flyctl status --app "${APP_NAME}" --json | jq '.app.machine_config.cpus') #  获取当前 CPU 数量
 if [ -n "${current_cpu_count}" ]; then # 检查是否成功获取到 CPU 数量
     current_cpu_count=$(echo "${current_cpu_count}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') # 去除空白字符
     if [ "${current_cpu_count}" -gt "${MAX_CPUS}" ]; then
