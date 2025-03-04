@@ -82,7 +82,7 @@ processes = []
   #   port = 80
 
    [[services.ports]]
-     handlers = "tls"
+     handlers = ["tls"]
      port = 443
 
   [[services.tcp_checks]]
