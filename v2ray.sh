@@ -69,26 +69,63 @@ echo "Fly App Region: ${FLY_REGION}"
 echo "V2Ray UUID: ${UUID}"  #  <--  输出生成的 UUID
 echo "--------------------------------"
 
-#  开始修改 config.json  (新增配置修改部分)
-echo "修改 config.json ..."
-
-
+#  开始修改 config.json (修改为 服务器端 配置)
+echo "修改 config.json 为服务器端配置 ..."
 CONFIG_FILE="${INSTALL_PATH}/config.json"
 
-#  替换 inbounds 部分为 vmess 服务器配置
-sed -i "s#\"inbounds\": \[.*\]#\"inbounds\": [\n      {\n        \"port\": 10000,\n        \"listen\": \"0.0.0.0\",\n        \"protocol\": \"vmess\",\n        \"settings\": {\n          \"clients\": [\n            {\n              \"id\": \"${UUID}\",\n              \"alterId\": 0,\n              \"security\": \"auto\"\n            }\n          ]\n        }\n      }\n    ]#g" "${CONFIG_FILE}"
+#  配置 inbounds 部分为 VMess 服务器监听
+server_inbounds_config='
+"inbounds": [
+  {
+    "port": 10000,  #  服务器监听端口，可以保持 10000，fly.toml 也要对应
+    "listen": "0.0.0.0", # 监听所有 IP 地址
+    "protocol": "vmess",
+    "settings": {
+      "clients": [
+        {
+          "id": "${UUID}",  #  使用 UUID 作为用户 ID，客户端需要提供相同的 UUID 才能连接
+          "alterId": 0,
+          "security": "auto"
+        }
+      ]
+    }
+  }
+]
+'
+sed -i "s#\"inbounds\": \[.*\]#\"inbounds\": [\n${server_inbounds_config}\n    ]#g" "${CONFIG_FILE}"
 
-#  简化 outbounds 部分 (只保留 freedom, 移除 socks, 可选保留 blackhole)
-sed -i "/},{\"protocol\": \"socks\".*},{\"protocol\": \"blackhole\"/d" "${CONFIG_FILE}"  #  移除 socks 和 blackhole 出站 (如果原配置是这个顺序)
-sed -i "/},{\"protocol\": \"socks\".*}/d" "${CONFIG_FILE}" # 移除 socks 出站 (如果 blackhole 不存在或顺序不同)
-sed -i "/\"defaultOutboundTag\": \".*\"/c\"defaultOutboundTag\": \"freedom\"" "${CONFIG_FILE}" # 设置默认出站为 freedom
 
-#  简化 routing 部分 (简化规则，例如只保留阻止内网 IP 的规则，这里省略，可以根据需要添加更多 sed 命令修改 routing 部分)
-#  ...  可以根据需要添加更多 sed 命令来修改 routing 部分  ...
+#  配置 outbounds 部分为 freedom (服务器端只需要 freedom 出站)
+server_outbounds_config='
+"outbounds": [
+  {
+    "tag": "freedom",  #  自由出站，服务器直接转发流量到目标地址
+    "protocol": "freedom",
+    "settings": {}
+  }
+],
+"defaultOutboundTag": "freedom" # 默认出站设置为 freedom
+'
+sed -i "/\"outbounds\": \[/,/\"defaultOutboundTag\": \".*\"/c\\${server_outbounds_config}" "${CONFIG_FILE}"
 
-echo "config.json 修改完成"
 
-# mv CONFIG_FILE "${INSTALL_PATH}"
+#  简化 routing 部分 (服务器端路由规则可以更简单)
+server_routing_config='
+"routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "type": "field",
+        "outboundTag": "freedom" # 所有流量默认使用 freedom 出站
+      }
+    ]
+  }
+'
+sed -i "/\"routing\": \{/,/\}/c\\${server_routing_config}" "${CONFIG_FILE}"
+
+
+echo "config.json 服务器端配置完成"
+
 
 # Run v2ray (保持不变)
 v2ray run
