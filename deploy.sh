@@ -3,9 +3,7 @@
 # UUID="00277430-85b5-46e2-a6c9-4fe3da538187"
 # APP_NAME="lyz7805-v2ray"
 VOLUME_NAME="swap_volume"
-VOLUME_SIZE_GB=3
-
-
+#VOLUME_SIZE_GB=3
 REGION="lax"
 
 if ! command -v flyctl >/dev/null 2>&1; then
@@ -46,23 +44,7 @@ processes = []
   allowed_public_ports = []
   auto_rollback = true
 
-# 移除 [http_service] 部分，因为是 V2Ray 服务器，不需要 HTTP 服务
-# [http_service]
-#   internal_port = 8080
-#   force_https = true
-#   auto_stop_machines = false
-#   auto_start_machines = true
-#   processes = ["app"]
 
-# 移除 [[http_service.checks]] 部分，使用 TCP 检查
-# [[http_service.checks]]
-#   interval = "5s"
-#   grace_period = "10s"
-#   timeout = "2s"
-#   method = "GET"
-#   path = "/healthz"
-#   protocol = "http"
-#   port = 8080
 
 [[vm]]
   cpu_kind = "shared"
@@ -95,8 +77,10 @@ processes = []
     grace_period = "120s" #  启动等待时间可以适当长一些
     restart_limit = 0
 [[mounts]]  # Added mounts section for volume
-  source= "${VOLUME_NAME}"
-  destination="/mnt/volume"
+    source= "${VOLUME_NAME}"
+    destination="/mnt/volume"
+    size=3
+    
 EOF
 printf '\e[32mCreate app config file success.\n\e[0m'
 printf '\e[33mNext, set app secrets and regions.\n\e[0m'
