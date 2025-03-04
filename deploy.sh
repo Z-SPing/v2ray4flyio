@@ -83,7 +83,7 @@ printf '\e[32mCreate app config file success.\n\e[0m'
 printf '\e[33mNext, set app secrets and regions.\n\e[0m'
 
 flyctl secrets set UUID="${UUID}"
-fly scale count -r ${REGION}
+fly scale count -r --region ${REGION}
 
 
 # 检查 Volume 是否存在，不存在则创建 (在应用创建之前或之后创建 Volume 都可以，这里放在前面)
