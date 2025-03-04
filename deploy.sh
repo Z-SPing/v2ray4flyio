@@ -8,7 +8,7 @@ VOLUME_NAME="swap_volume"  # 定义 Volume 名称
 VOLUME_SIZE_GB=3        # 定义 Volume 大小 (GB)
 MAX_CPUS=2               # 最大 CPU 限制
 MAX_VOLUMES=1            # 最大 Volume 限制
-MIN_MEMORY_MB=512        # 最小内存要求
+MIN_MEMORY_MB=256        # 最小内存要求
 
 if ! command -v flyctl >/dev/null 2>&1; then
     printf '\e[33mCould not resolve command - flyctl. So, install flyctl first.\n\e[0m'
