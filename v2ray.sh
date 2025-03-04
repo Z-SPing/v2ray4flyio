@@ -66,7 +66,7 @@ echo "Install done"
 echo "--------------------------------"
 echo "Fly App Name: ${FLY_APP_NAME}"
 echo "Fly App Region: ${FLY_REGION}"
-echo "V2Ray UUID: ${UUID}"  #  <--  输出生成的 UUID
+echo "V2Ray UUID: ${UUID}"
 echo "--------------------------------"
 
 #  开始修改 config.json (修改为 服务器端 配置)
@@ -77,13 +77,13 @@ CONFIG_FILE="${INSTALL_PATH}/config.json"
 server_inbounds_config='
 "inbounds": [
   {
-    "port": 10000,  #  服务器监听端口，可以保持 10000，fly.toml 也要对应
-    "listen": "0.0.0.0", # 监听所有 IP 地址
+    "port": 10000,
+    "listen": "0.0.0.0",
     "protocol": "vmess",
     "settings": {
       "clients": [
         {
-          "id": "${UUID}",  #  使用 UUID 作为用户 ID，客户端需要提供相同的 UUID 才能连接
+          "id": "${UUID}",
           "alterId": 0,
           "security": "auto"
         }
@@ -92,19 +92,20 @@ server_inbounds_config='
   }
 ]
 '
-sed -i "s#\"inbounds\": \[.*\]#\"inbounds\": [\n${server_inbounds_config}\n    ]#g" "${CONFIG_FILE}"
+sed -i "s/\"inbounds\": \[.*\]/\"inbounds\": [${server_inbounds_config}]/g" "${CONFIG_FILE}"
 
 
 #  配置 outbounds 部分为 freedom (服务器端只需要 freedom 出站)
 server_outbounds_config='
 "outbounds": [
   {
-    "tag": "freedom",  
+    "tag": "freedom",
     "protocol": "freedom",
     "settings": {}
   }
 ],
-"defaultOutboundTag": "freedom" 
+"defaultOutboundTag": "freedom"
+'
 sed -i "/\"outbounds\": \[/,/\"defaultOutboundTag\": \".*\"/c\\${server_outbounds_config}" "${CONFIG_FILE}"
 
 
@@ -128,5 +129,3 @@ echo "config.json 服务器端配置完成"
 
 # Run v2ray (保持不变)
 v2ray run
-
-
