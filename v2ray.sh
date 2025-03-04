@@ -99,13 +99,12 @@ sed -i "s#\"inbounds\": \[.*\]#\"inbounds\": [\n${server_inbounds_config}\n    ]
 server_outbounds_config='
 "outbounds": [
   {
-    "tag": "freedom",  #  自由出站，服务器直接转发流量到目标地址
+    "tag": "freedom",  
     "protocol": "freedom",
     "settings": {}
   }
 ],
-"defaultOutboundTag": "freedom" # 默认出站设置为 freedom
-'
+"defaultOutboundTag": "freedom" 
 sed -i "/\"outbounds\": \[/,/\"defaultOutboundTag\": \".*\"/c\\${server_outbounds_config}" "${CONFIG_FILE}"
 
 
@@ -116,7 +115,7 @@ server_routing_config='
     "rules": [
       {
         "type": "field",
-        "outboundTag": "freedom" # 所有流量默认使用 freedom 出站
+        "outboundTag": "freedom"
       }
     ]
   }
