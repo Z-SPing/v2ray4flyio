@@ -92,7 +92,7 @@ server_inbounds_config='
   }
 ]
 '
-sed -i "s/\"inbounds\": \[.*\]/\"inbounds\": [${server_inbounds_config}]/g" "${CONFIG_FILE}"
+sed -i "s/\"inbounds\": \[.*\]/\"inbounds\": ${server_inbounds_config}/g" "${CONFIG_FILE}"
 
 
 #  配置 outbounds 部分为 freedom (服务器端只需要 freedom 出站)
@@ -103,16 +103,17 @@ server_outbounds_config='
     "protocol": "freedom",
     "settings": {}
   }
-],
-"defaultOutboundTag": "freedom"
-'
-sed -i "/\"outbounds\": \[/,/\"defaultOutboundTag\": \".*\"/c\\${server_outbounds_config}" "${CONFIG_FILE}"
+],\n"defaultOutboundTag": "freedom"
+' # 注意这里 server_outbounds_config 包含了 defaultOutboundTag
+
+sed -i "s/\"outbounds\": \[.*\]\n  \},/\"outbounds\": ${server_outbounds_config}/g" "${CONFIG_FILE}"  #  更精确匹配到 '  },' 之前的 outbounds 块
 
 
 #  简化 routing 部分 (服务器端路由规则可以更简单)
 server_routing_config='
 "routing": {
     "domainStrategy": "AsIs",
+    "domainMatcher": "mph",
     "rules": [
       {
         "type": "field",
@@ -121,7 +122,7 @@ server_routing_config='
     ]
   }
 '
-sed -i "/\"routing\": \{/,/\}/c\\${server_routing_config}" "${CONFIG_FILE}"
+sed -i "s/\"routing\": \{.*\}\}/\"routing\": ${server_routing_config}/gs" "${CONFIG_FILE}"
 
 
 echo "config.json 服务器端配置完成"
