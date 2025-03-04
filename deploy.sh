@@ -2,9 +2,10 @@
 
 # UUID="00277430-85b5-46e2-a6c9-4fe3da538187"
 # APP_NAME="lyz7805-v2ray"
-VOLUME_NAME="swap_volume"
-#VOLUME_SIZE_GB=3
+
 REGION="lax"
+VOLUME_NAME="swap_volume"  # 定义 Volume 名称
+VOLUME_SIZE_GB=3        # 定义 Volume 大小 (GB)
 
 if ! command -v flyctl >/dev/null 2>&1; then
     printf '\e[33mCould not resolve command - flyctl. So, install flyctl first.\n\e[0m'
@@ -14,6 +15,10 @@ fi
 if [ -z "${APP_NAME}" ]; then
     printf '\e[31mPlease set APP_NAME first.\n\e[0m' && exit 1
 fi
+
+
+
+
 
 flyctl info --app "${APP_NAME}" >/tmp/${APP_NAME} 2>&1;
 if [ "$(cat /tmp/${APP_NAME} | grep -o "Could not resolve")" = "Could not resolve" ]; then
@@ -44,8 +49,6 @@ processes = []
   allowed_public_ports = []
   auto_rollback = true
 
-
-
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
@@ -62,13 +65,8 @@ processes = []
     soft_limit = 35
     type = "connections"
 
-  # 移除 HTTP/HTTPS 端口配置
-  # [[services.ports]]
-  #   handlers = ["http"]
-  #   port = 80
-
    [[services.ports]]
-     handlers = ["tls"]
+     handlers = "tls"
      port = 443
 
   [[services.tcp_checks]]
@@ -77,18 +75,38 @@ processes = []
     grace_period = "120s" #  启动等待时间可以适当长一些
     restart_limit = 0
 [[mounts]]  # Added mounts section for volume
-    source= "${VOLUME_NAME}"
+    source= "${VOLUME_NAME}"  # 使用变量
     destination="/mnt/volume"
-    size=3
-    
+
 EOF
 printf '\e[32mCreate app config file success.\n\e[0m'
 printf '\e[33mNext, set app secrets and regions.\n\e[0m'
 
 flyctl secrets set UUID="${UUID}"
-flyctl regions set ${REGION}
+fly scale count -r ${REGION}
+
+
+# 检查 Volume 是否存在，不存在则创建 (在应用创建之前或之后创建 Volume 都可以，这里放在前面)
+flyctl volumes list -a "${APP_NAME}" | grep "${VOLUME_NAME}" > /dev/null
+if [ $? -ne 0 ]; then
+    printf '\e[33mVolume "${VOLUME_NAME}" does not exist. Creating volume.\n\e[0m'
+    flyctl volumes create "${VOLUME_NAME}" -a "${APP_NAME}" -r "${REGION}" -s "${VOLUME_SIZE_GB}"
+    if [ $? -ne 0 ]; then
+        printf '\e[31mFailed to create volume "${VOLUME_NAME}". Please check errors above and ensure region is set correctly.\n\e[0m' && exit 1
+    fi
+    printf '\e[32mVolume "${VOLUME_NAME}" created successfully.\n\e[0m'
+else
+    printf '\e[33mVolume "${VOLUME_NAME}" already exists.\n\e[0m'
+fi
+
 printf '\e[32mApp secrets and regions set success. Next, deploy the app.\n\e[0m'
 
+flyctl deploy --detach  #  !!!  添加了 flyctl deploy --detach 命令 !!!
+
+printf '\e[33mWaiting for deployment to complete before setting up swap...\n\e[0m'
+sleep 30 #  !!! 添加 sleep 等待时间 !!!
+
+printf '\e[33mNext, setup swap space on volume.\n\e[0m'
 flyctl ssh console -a "${APP_NAME}" -C "
   # 1. Check if /mnt/volume directory exists (volume should be mounted)
   if [ ! -d /mnt/volume ]; then
@@ -97,16 +115,16 @@ flyctl ssh console -a "${APP_NAME}" -C "
   fi
 
   # 2. Create Swap file (e.g., 1GB, path is /mnt/volume/swapfile)
-  sudo fallocate -l 1G /mnt/volume/swapfile
+  fallocate -l 1G /mnt/volume/swapfile
 
   # 3. Set Swap file permissions
-  sudo chmod 600 /mnt/volume/swapfile
+  chmod 600 /mnt/volume/swapfile
 
   # 4. Format as Swap file system
-  sudo mkswap /mnt/volume/swapfile
+  mkswap /mnt/volume/swapfile
 
   # 5. Enable Swap file
-  sudo swapon /mnt/volume/swapfile
+  swapon /mnt/volume/swapfile
 
   # 6. Verify Swap is enabled
   swapon -s
