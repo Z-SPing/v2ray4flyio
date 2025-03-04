@@ -63,7 +63,7 @@ processes = []
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
-  memory_mb = 1024 
+  memory_mb = 256
 
 [[services]]
   internal_port = 10000  #  V2Ray 监听端口
