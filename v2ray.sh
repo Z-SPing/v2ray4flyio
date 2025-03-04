@@ -69,63 +69,22 @@ echo "Fly App Region: ${FLY_REGION}"
 echo "V2Ray UUID: ${UUID}"
 echo "--------------------------------"
 
-#  开始修改 config.json (修改为 服务器端 配置)
-echo "修改 config.json 为服务器端配置 ..."
+#  开始修改 config.json (使用 jq 修改为 服务器端 配置)
+echo "修改 config.json 为服务器端配置 (使用 jq) ..."
 CONFIG_FILE="${INSTALL_PATH}/config.json"
 
-#  配置 inbounds 部分为 VMess 服务器监听
-server_inbounds_config='
-"inbounds": [
-  {
-    "port": 10000,
-    "listen": "0.0.0.0",
-    "protocol": "vmess",
-    "settings": {
-      "clients": [
-        {
-          "id": "${UUID}",
-          "alterId": 0,
-          "security": "auto"
-        }
-      ]
-    }
-  }
-]
-'
-sed -i "s/\"inbounds\": \[.*\]/\"inbounds\": ${server_inbounds_config}/g" "${CONFIG_FILE}"
+#  配置 inbounds 部分
+jq ".inbounds = [{\"port\": 10000, \"listen\": \"0.0.0.0\", \"protocol\": \"vmess\", \"settings\": {\"clients\": [{\"id\": \"${UUID}\", \"alterId\": 0, \"security\": \"auto\"}]}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
+
+#  配置 outbounds 部分
+jq ".outbounds = [{\"tag\": \"freedom\", \"protocol\": \"freedom\", \"settings\": {}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
+jq ".defaultOutboundTag = \"freedom\"" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
+
+#  配置 routing 部分
+jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", \"outboundTag\": \"freedom\"}]}" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
 
-#  配置 outbounds 部分为 freedom (服务器端只需要 freedom 出站)
-server_outbounds_config='
-"outbounds": [
-  {
-    "tag": "freedom",
-    "protocol": "freedom",
-    "settings": {}
-  }
-],\n"defaultOutboundTag": "freedom"
-' # 注意这里 server_outbounds_config 包含了 defaultOutboundTag
-
-sed -i "s/\"outbounds\": \[.*\]\n  \},/\"outbounds\": ${server_outbounds_config}/g" "${CONFIG_FILE}"  #  更精确匹配到 '  },' 之前的 outbounds 块
-
-
-#  简化 routing 部分 (服务器端路由规则可以更简单)
-server_routing_config='
-"routing": {
-    "domainStrategy": "AsIs",
-    "domainMatcher": "mph",
-    "rules": [
-      {
-        "type": "field",
-        "outboundTag": "freedom"
-      }
-    ]
-  }
-'
-sed -i "s/\"routing\": \{.*\}\}/\"routing\": ${server_routing_config}/gs" "${CONFIG_FILE}"
-
-
-echo "config.json 服务器端配置完成"
+echo "config.json 修改为服务器端配置完成 (使用 jq)"
 
 
 # Run v2ray (保持不变)
