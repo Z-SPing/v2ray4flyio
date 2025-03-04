@@ -52,14 +52,11 @@ chmod +x "${INSTALL_PATH}/config.json"
 chmod +x "${INSTALL_PATH}/vpoint_socks_vmess.json"
 chmod +x "${INSTALL_PATH}/vpoint_vmess_freedom.json"
 
-
 mkdir -p "${DATA_PATH}"
 mv geosite.dat geoip.dat "${DATA_PATH}"
 
-
-
 echo "--------------------------------"
-echo "Fly App Name: ${FLY_APP_NAME} v2"
+echo "Fly App Name: ${FLY_APP_NAME} v3"
 echo "Fly App Region: ${FLY_REGION}"
 echo "V2Ray UUID: ${UUID}"
 echo "--------------------------------"
@@ -70,7 +67,7 @@ CONFIG_FILE="${INSTALL_PATH}/config.json"
 
 
 
-# **新增：移除 config.json 文件中的注释行**
+# 新增：移除 config.json 文件中的注释行
 echo "移除 config.json 文件中的注释行..."
 TEMP_CONFIG_FILE="${CONFIG_FILE}.temp"
 sed '/^\s*\/\//d' "${CONFIG_FILE}" > "${TEMP_CONFIG_FILE}"
