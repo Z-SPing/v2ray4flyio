@@ -77,7 +77,7 @@ echo "注释行已移除"
 
 
 # 配置 inbounds 部分
-jq ".inbounds = [{\"port\": 10000, \"listen\": \"0.0.0.0\", \"protocol\": \"vmess\", \"settings\": {\"clients\": [{\"id\": \"${UUID}\", \"alterId\": 0, \"security\": \"auto\"}]}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
+jq ".inbounds = [{\"port\": 10000, \"listen\": \"0.0.0.0\", \"protocol\": \"vmess\", \"settings\": {\"clients\": [{\"id\": \"${UUID}\", \"alterId\": 0, \"security\": \"none\"}]}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
 # 配置 outbounds 部分
 jq ".outbounds = [{\"tag\": \"freedom\", \"protocol\": \"freedom\", \"settings\": {}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
