@@ -68,6 +68,10 @@ echo "--------------------------------"
 echo "修改 config.json 为服务器端配置 (使用 jq) ..."
 CONFIG_FILE="${INSTALL_PATH}/config.json"
 
+echo "config.json 文件内容 (jq 执行前):"
+cat "${CONFIG_FILE}"  # 打印 config.json 文件内容
+
+
 #  配置 inbounds 部分
 jq ".inbounds = [{\"port\": 10000, \"listen\": \"0.0.0.0\", \"protocol\": \"vmess\", \"settings\": {\"clients\": [{\"id\": \"${UUID}\", \"alterId\": 0, \"security\": \"auto\"}]}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
