@@ -66,12 +66,6 @@ echo "Install done"
 echo "--------------------------------"
 echo "Fly App Name: ${FLY_APP_NAME}"
 echo "Fly App Region: ${FLY_REGION}"
-echo "V2Ray UUID: ${UUID}"
-echo "--------------------------------"
-
-echo "--------------------------------"
-echo "Fly App Name: ${FLY_APP_NAME}"
-echo "Fly App Region: ${FLY_REGION}"
 echo "V2Ray UUID: ${UUID}"  #  <--  输出生成的 UUID
 echo "--------------------------------"
 
