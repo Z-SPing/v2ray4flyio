@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# UUID="00277430-85b5-46e2-a6c9-4fe3da538187"
-# APP_NAME="lyz7805-v2ray"
+# UUID="00277430-85b5-46e2-a6c9-4fe3da538187"  <- Removed example comment
+# APP_NAME="lyz7805-v2ray"                 <- Removed example comment
 
 REGION="lax"
 VOLUME_NAME="swap_volume"  # 定义 Volume 名称
@@ -15,10 +15,6 @@ fi
 if [ -z "${APP_NAME}" ]; then
     printf '\e[31mPlease set APP_NAME first.\n\e[0m' && exit 1
 fi
-
-
-
-
 
 flyctl info --app "${APP_NAME}" >/tmp/${APP_NAME} 2>&1;
 if [ "$(cat /tmp/${APP_NAME} | grep -o "Could not resolve")" = "Could not resolve" ]; then
@@ -66,7 +62,7 @@ processes = []
     type = "connections"
 
    [[services.ports]]
-     handlers = "tls"
+     handlers = ["tls"]  # Modified to be a list of strings
      port = 443
 
   [[services.tcp_checks]]
@@ -90,7 +86,7 @@ fly scale count 1 -r "${REGION}" -y
 flyctl volumes list -a "${APP_NAME}" | grep "${VOLUME_NAME}" > /dev/null
 if [ $? -ne 0 ]; then
     printf '\e[33mVolume "${VOLUME_NAME}" does not exist. Creating volume.\n\e[0m'
-    flyctl volumes create "${VOLUME_NAME}" -a "${APP_NAME}" -r "${REGION}" -s "${VOLUME_SIZE_GB}"
+    flyctl volumes create "${VOLUME_NAME}" -a "${APP_NAME}" -r "${REGION}" -s "${VOLUME_SIZE_GB}" -y # Added -y flag
     if [ $? -ne 0 ]; then
         printf '\e[31mFailed to create volume "${VOLUME_NAME}". Please check errors above and ensure region is set correctly.\n\e[0m' && exit 1
     fi
@@ -115,16 +111,16 @@ flyctl ssh console -a "${APP_NAME}" -C "
   fi
 
   # 2. Create Swap file (e.g., 1GB, path is /mnt/volume/swapfile)
-  fallocate -l 1G /mnt/volume/swapfile
+  sudo fallocate -l 1G /mnt/volume/swapfile # Added sudo
 
   # 3. Set Swap file permissions
-  chmod 600 /mnt/volume/swapfile
+  sudo chmod 600 /mnt/volume/swapfile # Added sudo
 
   # 4. Format as Swap file system
-  mkswap /mnt/volume/swapfile
+  sudo mkswap /mnt/volume/swapfile # Added sudo
 
   # 5. Enable Swap file
-  swapon /mnt/volume/swapfile
+  sudo swapon /mnt/volume/swapfile # Added sudo
 
   # 6. Verify Swap is enabled
   swapon -s
