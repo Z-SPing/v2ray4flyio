@@ -74,8 +74,7 @@ sed '/^\s*\/\//d' "${CONFIG_FILE}" > "${TEMP_CONFIG_FILE}"
 mv "${TEMP_CONFIG_FILE}" "${CONFIG_FILE}"
 echo "注释行已移除"
 
-echo "config.json 文件内容 (jq 执行前):"
-cat "${CONFIG_FILE}"  # 打印 config.json 文件内容
+
 
 #  配置 inbounds 部分
 jq ".inbounds = [{\"port\": 10000, \"listen\": \"0.0.0.0\", \"protocol\": \"vmess\", \"settings\": {\"clients\": [{\"id\": \"${UUID}\", \"alterId\": 0, \"security\": \"auto\"}]}}]" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
@@ -89,6 +88,9 @@ jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", 
 
 
 echo "config.json 修改为服务器端配置完成 (使用 jq)"
+
+echo "config.json 文件内容 (jq 执行后后后后后):"
+cat "${CONFIG_FILE}"  # 打印 config.json 文件内容
 
 # 清理临时文件
 echo "清理临时文件..."
