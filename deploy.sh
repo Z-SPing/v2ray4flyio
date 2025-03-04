@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# UUID="00277430-85b5-46e2-a6c9-4fe3da538187"  <- Removed example comment
-# APP_NAME="lyz7805-v2ray"                 <- Removed example comment
+# UUID="00277430-85b5-46e2-a6c9-4fe3da538187"
+# APP_NAME="lyz7805-v2ray"
 
 REGION="lax"
 VOLUME_NAME="swap_volume"  # 定义 Volume 名称
@@ -62,7 +62,7 @@ processes = []
     type = "connections"
 
    [[services.ports]]
-     handlers = ["tls"]  # Modified to be a list of strings
+     handlers = ["tls"]
      port = 443
 
   [[services.tcp_checks]]
@@ -80,52 +80,35 @@ printf '\e[33mNext, set app secrets and regions.\n\e[0m'
 
 flyctl secrets set UUID="${UUID}"
 fly scale count 1 -r "${REGION}" -y
+flyctl regions set ${REGION} # 放在 scale 之后可能更清晰
 
+printf '\e[33mNext, create volume before deploy.\n\e[0m'  #  明确提示创建 volume 步骤
 
-# 检查 Volume 是否存在，不存在则创建 (在应用创建之前或之后创建 Volume 都可以，这里放在前面)
-flyctl volumes list -a "${APP_NAME}" | grep "${VOLUME_NAME}" > /dev/null
+#  !!!  提前创建 Volume，放在 deploy 之前  !!!
+printf '\e[33mCreating volume "${VOLUME_NAME}"...\n\e[0m'
+flyctl volumes create "${VOLUME_NAME}" -a "${APP_NAME}" -r "${REGION}" -s "${VOLUME_SIZE_GB}" -y
 if [ $? -ne 0 ]; then
-    printf '\e[33mVolume "${VOLUME_NAME}" does not exist. Creating volume.\n\e[0m'
-    flyctl volumes create "${VOLUME_NAME}" -a "${APP_NAME}" -r "${REGION}" -s "${VOLUME_SIZE_GB}" -y # Added -y flag
-    if [ $? -ne 0 ]; then
-        printf '\e[31mFailed to create volume "${VOLUME_NAME}". Please check errors above and ensure region is set correctly.\n\e[0m' && exit 1
-    fi
-    printf '\e[32mVolume "${VOLUME_NAME}" created successfully.\n\e[0m'
-else
-    printf '\e[33mVolume "${VOLUME_NAME}" already exists.\n\e[0m'
+    printf '\e[31mFailed to create volume "${VOLUME_NAME}". Please check errors above and ensure region is set correctly.\n\e[0m' && exit 1
 fi
+printf '\e[32mVolume "${VOLUME_NAME}" created successfully.\n\e[0m'
 
-printf '\e[32mApp secrets and regions set success. Next, deploy the app.\n\e[0m'
 
+printf '\e[32mApp secrets, regions and volume set success. Next, deploy the app.\n\e[0m'
 flyctl deploy --detach  #  !!!  添加了 flyctl deploy --detach 命令 !!!
 
 printf '\e[33mWaiting for deployment to complete before setting up swap...\n\e[0m'
 sleep 30 #  !!! 添加 sleep 等待时间 !!!
 
-printf '\e[33mNext, setup swap space on volume.\n\e[0m'
-flyctl ssh console -a "${APP_NAME}" -C "
-  # 1. Check if /mnt/volume directory exists (volume should be mounted)
-  if [ ! -d /mnt/volume ]; then
-    echo '错误: /mnt/volume 目录不存在，volume 可能未挂载成功！'
-    exit 1
-  fi
+printf '\e[33mNext, setup swap space on volume (step by step)...\n\e[0m' # 提示分步骤设置 swap
 
-  # 2. Create Swap file (e.g., 1GB, path is /mnt/volume/swapfile)
-  sudo fallocate -l 1G /mnt/volume/swapfile # Added sudo
+#  !!!  分步骤执行 Swap 配置命令，简化 SSH 命令  !!!
+flyctl ssh console -a "${APP_NAME}" -C "sudo mkdir -p /mnt/volume"  # 确保 /mnt/volume 目录存在 (虽然应该已经存在，以防万一)
+flyctl ssh console -a "${APP_NAME}" -C "sudo fallocate -l 1G /mnt/volume/swapfile"
+flyctl ssh console -a "${APP_NAME}" -C "sudo chmod 600 /mnt/volume/swapfile"
+flyctl ssh console -a "${APP_NAME}" -C "sudo mkswap /mnt/volume/swapfile"
+flyctl ssh console -a "${APP_NAME}" -C "sudo swapon /mnt/volume/swapfile"
+flyctl ssh console -a "${APP_NAME}" -C "swapon -s" # 验证 Swap 是否启用
+flyctl ssh console -a "${APP_NAME}" -C "echo 'Swap space created and enabled successfully!'"
 
-  # 3. Set Swap file permissions
-  sudo chmod 600 /mnt/volume/swapfile # Added sudo
-
-  # 4. Format as Swap file system
-  sudo mkswap /mnt/volume/swapfile # Added sudo
-
-  # 5. Enable Swap file
-  sudo swapon /mnt/volume/swapfile # Added sudo
-
-  # 6. Verify Swap is enabled
-  swapon -s
-
-  echo 'Swap space created and enabled successfully!'
-"
 
 printf '\e[32mDeployment and Swap space configuration complete.\n\e[0m'
