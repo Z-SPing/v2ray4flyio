@@ -86,7 +86,7 @@ jq ".defaultOutboundTag = \"freedom\"" "${CONFIG_FILE}" > temp.json && mv temp.j
 # 配置 routing 部分
 jq ".routing = {\"domainStrategy\": \"AsIs\", \"rules\": [{\"type\": \"field\", \"domain\": [\"*\"], \"outboundTag\": \"freedom\"}]}" "${CONFIG_FILE}" > temp.json && mv temp.json "${CONFIG_FILE}"
 
-echo "config.json 修改为服务器端配置完成 (使用 jq)"
+echo "config.json 修改为服务器端配置完成 (修改了routing)"
 
 echo "config.json 文件内容 (jq 执行后后后后后):"
 cat "${CONFIG_FILE}"  # 打印 config.json 文件内容
