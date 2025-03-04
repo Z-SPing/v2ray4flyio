@@ -64,7 +64,7 @@ rm -rf "${DOWNLOAD_PATH}"
 echo "Install done"
 
 echo "--------------------------------"
-echo "Fly App Name: ${FLY_APP_NAME}"
+echo "Fly App Name: ${FLY_APP_NAME} v2"
 echo "Fly App Region: ${FLY_REGION}"
 echo "V2Ray UUID: ${UUID}"
 echo "--------------------------------"
