@@ -45,7 +45,7 @@ unzip -o "${DOWNLOAD_PATH}/${V2RAY_ZIP}" -d "${DOWNLOAD_PATH}"
 cd "${DOWNLOAD_PATH}" || exit
 
 # Move files to system directory
-echo "安装到系统路径..."
+echo "安装到系统路径...."
 mv v2ray config.json vpoint_socks_vmess.json vpoint_vmess_freedom.json systemd "${INSTALL_PATH}"
 chmod +x "${INSTALL_PATH}/v2ray"
 chmod +x "${INSTALL_PATH}/config.json"
